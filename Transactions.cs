@@ -24,60 +24,8 @@ namespace CS.Csharp.CardanoCLI
 
         public string PrepareTransaction(TransactionParams txParams, long ttl, MintParams mintParams = null)
         {
-            var cmd = @"transaction build-raw";
-            cmd += _incmd_newline;
-
-            //tx in
-            cmd += $"--tx-in {txParams.TxInHash}#{txParams.TxInIx}";
-            cmd += _incmd_newline;
-
-            if (mintParams == null)
-            {
-                //send to - tx out
-                cmd += $"--tx-out {txParams.SendToAddress}+{txParams.LovelaceValue}";
-                cmd += _incmd_newline;
-                
-                //return change
-                if (!txParams.SendAllTxInAda)
-                {
-                    cmd += $"--tx-out {txParams.SenderAddress}+{txParams.TxInLovelaceValue - txParams.LovelaceValue}";
-                    cmd += _incmd_newline;
-                }
-            }
-            else
-            {
-                var policyId = Policies.GeneratePolicyId(mintParams.PolicyName);
-
-                cmd += $"--tx-out {txParams.SenderAddress}+{txParams.TxInLovelaceValue}";
-
-                cmd += $"+\"{mintParams.TokenAmount} {policyId}.{mintParams.TokenName}\"";
-                cmd += _incmd_newline;
-
-                cmd += $"--mint=\"{mintParams.TokenAmount} {policyId}.{mintParams.TokenName}\"" ;
-                cmd += _incmd_newline;
-
-                cmd += $"--mint-script-file {mintParams.PolicyName}.script";
-                cmd += _incmd_newline;
-
-            }
-
-            if(!String.IsNullOrEmpty(txParams.MetadataFileName))
-            {
-                cmd += $"--metadata-json-file {txParams.MetadataFileName}";
-                cmd += _incmd_newline;
-            }
-
-            cmd += $"--ttl {ttl}";
-            cmd += _incmd_newline;
-
-            cmd += "--fee 170000";
-            cmd += _incmd_newline;
-
-            cmd += $"--out-file {txParams.TxFileName}.raw";
-
-            return CardanoCLI.RunCLICommand(cmd);
+            return BuildTransaction(txParams, 170000, ttl, mintParams);
         }
-
        
         public string CalculateMinFee(TransactionParams txParams, long ttl)
         {
