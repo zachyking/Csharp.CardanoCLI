@@ -25,5 +25,8 @@ namespace CS.Csharp.CardanoCLI.Models
 
         public string MetadataFileName { get; set; }
 
+        public List<NativeToken> NativeTokensInUtxo { get; set; }
+        public List<NativeToken> NativeTokensToSend { get; set; }
+
     }
 }
