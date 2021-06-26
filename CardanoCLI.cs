@@ -23,7 +23,7 @@ namespace CS.Csharp.CardanoCLI
             //TestCreatePolicy();
             var examples = new Examples(network, working_directory);
 
-            examples.TestMintTokens();
+            examples.TestTransactionWithTokens();
 
         }
 

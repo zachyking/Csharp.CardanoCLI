@@ -70,12 +70,28 @@ namespace CS.Csharp.CardanoCLI
             {
                 //send to - tx out 
                 cmd += $"--tx-out {txParams.SendToAddress}+{lovelaceVal}";
+
+                foreach (NativeToken nativeToken in txParams.NativeTokensToSend)
+                {
+                    cmd += $"+\"{nativeToken.Amount} {nativeToken.TokenFullName}\"";
+                }
+
                 cmd += _incmd_newline;
 
                 //return change - fee pays sender
                 if (!txParams.SendAllTxInAda)
                 {
                     cmd += $"--tx-out {txParams.SenderAddress}+{txParams.TxInLovelaceValue - txParams.LovelaceValue - minFee}";
+
+                    foreach (NativeToken nativeToken in txParams.NativeTokensInUtxo)
+                    {
+                        var tokenSendingAmount = txParams.NativeTokensToSend.FirstOrDefault(x => x.TokenFullName == nativeToken.TokenFullName)?.Amount;
+                        var amount = nativeToken.Amount - (tokenSendingAmount != null ? tokenSendingAmount : 0);
+                        if(amount != 0)
+                        {
+                            cmd += $"+\"{nativeToken.Amount} {nativeToken.TokenFullName}\"";
+                        }
+                    }
                     cmd += _incmd_newline;
                 }
             }

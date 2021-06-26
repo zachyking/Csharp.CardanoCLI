@@ -81,11 +81,37 @@ namespace CS.Csharp.CardanoCLI
             }
         }
 
+        public void TestTransactionWithTokens()
+        {
+            var txParams = new TransactionParams()
+            {
+                TxFileName = $"tx-tokens",
+                LovelaceValue = 2000000,
+                SendAllTxInAda = false,
+                SenderAddress = "addr_test1vrw3r08naaq8wrtemegjk7p3e9zp7a2ceul9rd84pd3nckcynl6xq",
+                SendToAddress = "addr_test1vpl22c6vml7p7n5vv4n2mjf6sfw9kcse5c7jjk3uxc9dllcvvvj8q",
+                TxInLovelaceValue = 989477405,
+                TxInHash = "e1c85be256a393cc341ba0353e257d921544892e8a6529a38e5204e1bab4a73e",
+                TxInIx = 0,
+                NativeTokensInUtxo = new List<NativeToken>(){
+                    new NativeToken{
+                        Amount = 1000,
+                        TokenFullName = "1986a6fba600525df58ad520bedaba94a8e7a297ea929a23cf230376.CSTEST"
+                    }
+                },
+                NativeTokensToSend = new List<NativeToken>(){
+                    new NativeToken{
+                        Amount = 1000,
+                        TokenFullName = "1986a6fba600525df58ad520bedaba94a8e7a297ea929a23cf230376.CSTEST"
+                    }
+                },
+                SigningKeyFile = "signing-key"
+            };
+            Transaction(txParams);
+        }
+
         public void TestTransaction()
         {
-            var initialAda = 994825039;
-
-
             var txParams = new TransactionParams()
             {
                 TxFileName = $"tx2",
@@ -93,14 +119,19 @@ namespace CS.Csharp.CardanoCLI
                 SendAllTxInAda = false,
                 SenderAddress = "addr_test1vrw3r08naaq8wrtemegjk7p3e9zp7a2ceul9rd84pd3nckcynl6xq",
                 SendToAddress = "addr_test1vpl22c6vml7p7n5vv4n2mjf6sfw9kcse5c7jjk3uxc9dllcvvvj8q",
-                TxInLovelaceValue = initialAda,
+                TxInLovelaceValue = 989477405,
                 TxInHash = "7b8b5e3141b1239bf69e7513e599babc02a204602952abcac2fea226563712ab",
                 TxInIx = 1
             };
+            Transaction(txParams);
+        }
 
+
+        public void Transaction(TransactionParams txParams)
+        {
             var ttl = CardanoCLI.QueryTip().Slot + 100;
 
-            var transactions = new Transactions(_incmd_newline, _network);
+            var transactions = new Transactions(_network, txParams.SigningKeyFile);
 
             var f = transactions.PrepareTransaction(txParams, ttl);
             Console.WriteLine(f);

@@ -25,5 +25,10 @@ namespace CS.Csharp.CardanoCLI.Models
 
         public string MetadataFileName { get; set; }
 
+        public string SigningKeyFile { get; set; }
+
+        public List<NativeToken> NativeTokensInUtxo { get; set; }
+        public List<NativeToken> NativeTokensToSend { get; set; }
+
     }
 }
