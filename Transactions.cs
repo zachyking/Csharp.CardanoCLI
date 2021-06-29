@@ -26,8 +26,7 @@ namespace CS.Csharp.CardanoCLI
         {
             return BuildTransaction(txParams, 170000, ttl, mintParams);
         }
-
-
+       
         public string CalculateMinFee(TransactionParams txParams, long ttl)
         {
             var cmd = @"transaction calculate-min-fee";
