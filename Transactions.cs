@@ -87,7 +87,7 @@ namespace CS.Csharp.CardanoCLI
                     {
                         var tokenSendingAmount = txParams.NativeTokensToSend.FirstOrDefault(x => x.TokenFullName == nativeToken.TokenFullName)?.Amount;
                         var amount = nativeToken.Amount - (tokenSendingAmount != null ? tokenSendingAmount : 0);
-                        if(amount != 0)
+                        if (amount != 0)
                         {
                             cmd += $"+\"{nativeToken.Amount} {nativeToken.TokenFullName}\"";
                         }
@@ -97,14 +97,14 @@ namespace CS.Csharp.CardanoCLI
             }
             else
             {
-                 var policyId = Policies.GeneratePolicyId(mintParams.PolicyName);
+                var policyId = Policies.GeneratePolicyId(mintParams.PolicyName);
 
-                cmd += $"--tx-out {txParams.SenderAddress}+{txParams.TxInLovelaceValue-minFee}";
+                cmd += $"--tx-out {txParams.SenderAddress}+{txParams.TxInLovelaceValue - minFee}";
 
                 cmd += $"+\"{mintParams.TokenAmount} {policyId}.{mintParams.TokenName}\"";
                 cmd += _incmd_newline;
 
-                cmd += $"--mint=\"{mintParams.TokenAmount} {policyId}.{mintParams.TokenName}\"" ;
+                cmd += $"--mint=\"{mintParams.TokenAmount} {policyId}.{mintParams.TokenName}\"";
                 cmd += _incmd_newline;
 
                 cmd += $"--mint-script-file {mintParams.PolicyName}.script";
@@ -135,7 +135,7 @@ namespace CS.Csharp.CardanoCLI
 
             cmd += $"--tx-body-file {txParams.TxFileName}.raw";
             cmd += _incmd_newline;
-            
+
             cmd += $"--signing-key-file {_signing_key}";
             cmd += _incmd_newline;
 
@@ -159,6 +159,12 @@ namespace CS.Csharp.CardanoCLI
 
             return CardanoCLI.RunCLICommand(cmd);
 
+        }
+
+        public string GetTxIdBeforeSubmit(TransactionParams txParams)
+        {
+            var cmd = $"transaction txid --tx-file {txParams.TxFileName}.signed";
+            return CardanoCLI.RunCLICommand(cmd);
         }
     }
 }
