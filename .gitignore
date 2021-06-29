@@ -26,3 +26,5 @@ obj/Debug/net5.0/CS.Csharp.CardanoCLI.assets.cache
 obj/CS.Csharp.CardanoCLI.csproj.nuget.g.props
 obj/project.assets.json
 obj/project.nuget.cache
+/.vs/CS.Csharp.CardanoCLI/v16
+/.vs/CS.Csharp.CardanoCLI/DesignTimeBuild
