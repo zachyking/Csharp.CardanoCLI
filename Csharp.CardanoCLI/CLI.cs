@@ -4,35 +4,27 @@ using CS.Csharp.CardanoCLI.Models;
 
 namespace CS.Csharp.CardanoCLI
 {
-    public class CardanoCLI
+    public class CLI
     {
-        private static readonly string network = "--testnet-magic 1097911063"; //--mainnet
-        private static readonly string cardano_cli_location = $"/home/azureuser/cardano-node-1.27.0/cardano-cli"; //.exe for windows
-        private static readonly string working_directory = "/home/azureuser/cardano-node-1.27.0";
-
-        //private static readonly string signing_key = @"signing-key";
+        public readonly string _network; //= "--testnet-magic 1097911063"; //--mainnet
+        public readonly string _cardano_cli_location; //= $"/home/azureuser/cardano-node-1.27.0/cardano-cli"; //.exe for windows
+        public readonly string _working_directory; //= "/home/azureuser/cardano-node-1.27.0";
 
         private static readonly string incmd_newline = @" ";
 
-        static void Main(string[] args)
+        public CLI(string network, string cardano_cli_path, string working_directory)
         {
-            //var cli = new CardanoCLI();
-            //cli.QueryTip();
-
-            //TestTransaction();
-            //TestCreatePolicy();
-            var examples = new Examples(network, working_directory);
-
-            examples.TestTransactionWithTokens();
-
+            _network = network;
+            _cardano_cli_location = cardano_cli_path;
+            _working_directory = working_directory;
         }
 
-        public static bool HasError(string output)
+        public bool HasError(string output)
         {
             return output.StartsWith("CS.Error");
         }
 
-        public static string RunCLICommand(string cmd)
+        public string RunCLICommand(string cmd)
         {
             try
             {
@@ -40,8 +32,8 @@ namespace CS.Csharp.CardanoCLI
                 var processStartInfo = new ProcessStartInfo()
                 {
                     WindowStyle = ProcessWindowStyle.Hidden,
-                    FileName = cardano_cli_location,
-                    WorkingDirectory = working_directory,
+                    FileName = _cardano_cli_location,
+                    WorkingDirectory = _working_directory,
                     Arguments = cmd,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -62,9 +54,9 @@ namespace CS.Csharp.CardanoCLI
             }
         }
 
-        public static Tip QueryTip()
+        public Tip QueryTip()
         {
-            string cmd = $"query tip {network}";
+            string cmd = $"query tip {_network}";
             var output = RunCLICommand(cmd);
 
             if (output.StartsWith("CS.Error")) return new Tip();
@@ -72,12 +64,12 @@ namespace CS.Csharp.CardanoCLI
             return Tip.FromJson(output);
         }
 
-        public static string SetProtocolParamaters()
+        public string SetProtocolParamaters()
         {
             var cmd = @"query protocol-parameters";
             cmd += incmd_newline;
 
-            cmd += network;
+            cmd += _network;
             cmd += incmd_newline;
 
             cmd += "--out-file protocol.json";

@@ -9,16 +9,17 @@ namespace CS.Csharp.CardanoCLI
 {
     public class Examples
     {
-        private static string _network;
-        private static string _incmd_newline;
-        private static string _working_dir;
+        public readonly string _network; //= "--testnet-magic 1097911063"; //--mainnet
+        public readonly string _cardano_cli_location; //= $"/home/azureuser/cardano-node-1.27.0/cardano-cli"; //.exe for windows
+        public readonly string _working_directory; //= "/home/azureuser/cardano-node-1.27.0";
+        private readonly CLI cli;
 
-
-        public Examples(string network, string working_dir, string incmd_newline = " ")
+        public Examples(string network, string cardano_cli_path, string working_dir)
         {
             _network = network;
-            _incmd_newline = incmd_newline;
-            _working_dir = working_dir;
+            _working_directory = working_dir;
+            _cardano_cli_location = cardano_cli_path;
+            cli = new CLI(_network, _cardano_cli_location, _working_directory);
         }
 
 
@@ -52,7 +53,7 @@ namespace CS.Csharp.CardanoCLI
                 TxInIx = 1
             };
 
-            Assets assets = new Assets(_network, _working_dir);
+            Assets assets = new Assets(cli);
 
             Console.Write(assets.MintNativeTokens(policyParams, mintParams, txParams));
 
@@ -60,7 +61,7 @@ namespace CS.Csharp.CardanoCLI
 
         public void TestCreatePolicy()
         {
-            Policies policies = new Policies(_network, _working_dir);
+            Policies policies = new Policies(cli);
 
             var policyParams = new PolicyParams
             {
@@ -129,30 +130,30 @@ namespace CS.Csharp.CardanoCLI
 
         public void Transaction(TransactionParams txParams)
         {
-            var ttl = CardanoCLI.QueryTip().Slot + 100;
+            var ttl = cli.QueryTip().Slot + 100;
 
-            var transactions = new Transactions(_network, txParams.SigningKeyFile);
+            var transactions = new Transactions(txParams.SigningKeyFile, cli);
 
             var f = transactions.PrepareTransaction(txParams, ttl);
             Console.WriteLine(f);
             if (!f.StartsWith("CS.Error"))
             {
-                var protocolParams = CardanoCLI.SetProtocolParamaters();
-                if (!CardanoCLI.HasError(protocolParams))
+                var protocolParams = cli.SetProtocolParamaters();
+                if (!cli.HasError(protocolParams))
                 {
-                    var minFee = transactions.CalculateMinFee(txParams, ttl);
-                    if (!CardanoCLI.HasError(minFee))
+                    var minFee = transactions.CalculateMinFee(txParams);
+                    if (!cli.HasError(minFee))
                     {
                         Console.WriteLine(minFee);
                         var buildTx = transactions.BuildTransaction(txParams, (long)Convert.ToInt64(minFee.Replace(" Lovelace", "")), ttl);
-                        if (!CardanoCLI.HasError(buildTx))
+                        if (!cli.HasError(buildTx))
                         {
                             var signTx = transactions.SignTransaction(txParams);
-                            if (!CardanoCLI.HasError(signTx))
+                            if (!cli.HasError(signTx))
                             {
                                 var submit = transactions.SubmitTransaction(txParams);
                                 Console.WriteLine(submit);
-                                if (!CardanoCLI.HasError(submit))
+                                if (!cli.HasError(submit))
                                 {
                                     Console.WriteLine("Success!");
                                 }

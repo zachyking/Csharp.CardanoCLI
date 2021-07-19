@@ -11,15 +11,14 @@ namespace CS.Csharp.CardanoCLI
 {
     public class Transactions
     {
-        private static string _network;
-        private static string _incmd_newline;
-        private static string _signing_key;
+        private readonly string _incmd_newline = " ";
+        private readonly string _signing_key;
+        private readonly CLI _cli;
 
-        public Transactions(string network, string signning_key, string incmd_newline = " ")
+        public Transactions(string signning_key, CLI cli)
         {
             _signing_key = signning_key;
-            _network = network;
-            _incmd_newline = incmd_newline;
+            _cli = cli;
         }
 
         public string PrepareTransaction(TransactionParams txParams, long ttl, MintParams mintParams = null)
@@ -27,7 +26,7 @@ namespace CS.Csharp.CardanoCLI
             return BuildTransaction(txParams, 170000, ttl, mintParams);
         }
        
-        public string CalculateMinFee(TransactionParams txParams, long ttl)
+        public string CalculateMinFee(TransactionParams txParams)
         {
             var cmd = @"transaction calculate-min-fee";
             cmd += _incmd_newline;
@@ -39,7 +38,7 @@ namespace CS.Csharp.CardanoCLI
             cmd += $"--tx-out-count {outCount}";
             cmd += _incmd_newline;
 
-            cmd += _network;
+            cmd += _cli._network;
             cmd += _incmd_newline;
 
             cmd += $"--tx-body-file {txParams.TxFileName}.raw";
@@ -50,7 +49,7 @@ namespace CS.Csharp.CardanoCLI
 
             cmd += "--protocol-params-file protocol.json";
 
-            var output = CardanoCLI.RunCLICommand(cmd);
+            var output = _cli.RunCLICommand(cmd);
 
             return Regex.Replace(output, @"\s", "").Replace("Lovelace", "");
         }
@@ -97,7 +96,8 @@ namespace CS.Csharp.CardanoCLI
             }
             else
             {
-                var policyId = Policies.GeneratePolicyId(mintParams.PolicyName);
+                var policies = new Policies(_cli);
+                var policyId = policies.GeneratePolicyId(mintParams.PolicyName);
 
                 cmd += $"--tx-out {txParams.SenderAddress}+{txParams.TxInLovelaceValue - minFee}";
 
@@ -125,10 +125,10 @@ namespace CS.Csharp.CardanoCLI
 
             cmd += $"--out-file {txParams.TxFileName}.raw";
 
-            return CardanoCLI.RunCLICommand(cmd);
+            return _cli.RunCLICommand(cmd);
         }
 
-        public string SignTransaction(TransactionParams txParams, string signingKeyFile = "")
+        public string SignTransaction(TransactionParams txParams)
         {
             var cmd = @"transaction sign";
             cmd += _incmd_newline;
@@ -139,12 +139,12 @@ namespace CS.Csharp.CardanoCLI
             cmd += $"--signing-key-file {_signing_key}";
             cmd += _incmd_newline;
 
-            cmd += _network;
+            cmd += _cli._network;
             cmd += _incmd_newline;
 
             cmd += $"--out-file {txParams.TxFileName}.signed";
 
-            return CardanoCLI.RunCLICommand(cmd);
+            return _cli.RunCLICommand(cmd);
         }
 
         public string SubmitTransaction(TransactionParams txParams)
@@ -155,16 +155,16 @@ namespace CS.Csharp.CardanoCLI
             cmd += $"--tx-file {txParams.TxFileName}.signed";
             cmd += _incmd_newline;
 
-            cmd += _network;
+            cmd += _cli._network;
 
-            return CardanoCLI.RunCLICommand(cmd);
+            return _cli.RunCLICommand(cmd);
 
         }
 
         public string GetTxIdBeforeSubmit(TransactionParams txParams)
         {
             var cmd = $"transaction txid --tx-file {txParams.TxFileName}.signed";
-            return CardanoCLI.RunCLICommand(cmd);
+            return _cli.RunCLICommand(cmd);
         }
     }
 }

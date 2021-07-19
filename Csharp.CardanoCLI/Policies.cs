@@ -10,35 +10,30 @@ namespace CS.Csharp.CardanoCLI
 {
     public class Policies
     {
-        private string _network;
-        private string _incmd_newline;
-        private string _working_dir;
+        private readonly string _incmd_newline = " ";
+        private readonly CLI _cli;
 
-        public Policies(string network, string working_dir, string incmd_newline = " ")
+        public Policies(CLI cli)
         {
-            _network = network;
-            _incmd_newline = incmd_newline;
-            _working_dir = working_dir;
+            _cli = cli;
         }
 
         public Policy Create(PolicyParams pParams)
         {
             Policy policy = new Policy();
-            var error = "";
+            var policyKeyHash = GeneratePolicyKeyHash(pParams);
 
-
-            var policyKeyHash = this.GeneratePolicyKeyHash(pParams);
-
-            if (CardanoCLI.HasError(policyKeyHash))
+            string error;
+            if (_cli.HasError(policyKeyHash))
             {
                 error = policyKeyHash;
                 Console.WriteLine(error);
                 return policy;
             }
 
-            var policyScriptFile = this.CreatePolicyScriptFile(pParams, policyKeyHash);
+            var policyScriptFile = CreatePolicyScriptFile(pParams, policyKeyHash);
 
-            if (CardanoCLI.HasError(policyScriptFile))
+            if (_cli.HasError(policyScriptFile))
             {
                 error = policyScriptFile;
                 Console.WriteLine(error);
@@ -63,13 +58,13 @@ namespace CS.Csharp.CardanoCLI
 
             cmd += $"--signing-key-file {pParams.PolicyName}.skey";
 
-            return CardanoCLI.RunCLICommand(cmd);
+            return _cli.RunCLICommand(cmd);
         }
 
         public string GeneratePolicyKeyHash(PolicyParams pParams)
         {
             var cmd = $"address key-hash --payment-verification-key-file {pParams.VerificationKeyFile}";
-            var output = CardanoCLI.RunCLICommand(cmd);
+            var output = _cli.RunCLICommand(cmd);
             
             return Regex.Replace(output, @"\s", "");
         }
@@ -95,7 +90,7 @@ namespace CS.Csharp.CardanoCLI
 
             script = script.Replace("POLICY_KEY_HASH", policyKeyHash);
 
-            var currentSlot = CardanoCLI.QueryTip().Slot;
+            var currentSlot = _cli.QueryTip().Slot;
 
             if (pParams.TimeLimited) 
             {
@@ -103,7 +98,7 @@ namespace CS.Csharp.CardanoCLI
             }
             try
             {   
-                System.IO.File.WriteAllText($"{_working_dir}/{pParams.PolicyName}.script", script);
+                System.IO.File.WriteAllText($"{_cli._working_directory}/{pParams.PolicyName}.script", script);
             }
             catch(Exception ex)
             {
@@ -113,14 +108,14 @@ namespace CS.Csharp.CardanoCLI
             return $"{pParams.PolicyName}.script";
         }
 
-        public static string GeneratePolicyId(string policyName)
+        public string GeneratePolicyId(string policyName)
         {
             var cmd = $"transaction policyid";
             cmd += " ";
 
             cmd += $"--script-file {policyName}.script";
 
-            var output = CardanoCLI.RunCLICommand(cmd);
+            var output = _cli.RunCLICommand(cmd);
 
             return Regex.Replace(output, @"\s", "");
         }

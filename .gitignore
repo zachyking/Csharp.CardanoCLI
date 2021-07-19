@@ -28,3 +28,7 @@ obj/project.assets.json
 obj/project.nuget.cache
 /.vs/CS.Csharp.CardanoCLI/v16
 /.vs/CS.Csharp.CardanoCLI/DesignTimeBuild
+/Csharp.CardanoCLI/bin/Debug/net5.0
+/Csharp.CardanoCLI/obj
+/ExampleApp/bin/Debug/net5.0
+/ExampleApp/obj
