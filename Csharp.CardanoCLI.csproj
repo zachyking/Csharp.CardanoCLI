@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <PackageId>Csharp.CardanoCLI</PackageId>
+    <Version>0.1.27</Version>
+    <Authors>zachyking</Authors>
+    <Company>CardanoSounds</Company>
+    <PackageDescription>This is C# wrapper (in alpha) for cardano-cli to build easy APIs for minting tokens.</PackageDescription>
+    <RepositoryUrl>https://github.com/zachyking/csharp.cardanocli</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+</Project>
