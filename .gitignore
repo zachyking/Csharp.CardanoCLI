@@ -52,3 +52,5 @@ obj/Release/net5.0/ref/Csharp.CardanoCLI.dll
 nuget.config
 /obj/Debug/net5.0
 /.vs/Csharp.CardanoCLI/v16
+obj/Release/Csharp.CardanoCLI.1.27.0.nuspec
+bin/Release/Csharp.CardanoCLI.1.27.0.nupkg
