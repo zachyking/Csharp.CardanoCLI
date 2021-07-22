@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <PackageId>Csharp.CardanoCLI</PackageId>
-    <Version>1.27.0</Version>
+    <Version>0.1.27</Version>
     <Authors>zachyking</Authors>
     <Company>CardanoSounds</Company>
     <PackageDescription>This is C# wrapper (in alpha) for cardano-cli to build easy APIs for minting tokens.</PackageDescription>
