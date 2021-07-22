@@ -36,13 +36,13 @@ namespace CS.Csharp.CardanoCLI
             if (_cli.HasError(minFee)) { return "Error minFee: " + prepare; }
 
             var build = transactions.BuildTransaction(txParams, Int64.Parse(minFee), ttl, mintParams);
-            if (_cli.HasError(minFee)) { return "Error build: " + build; }
+            if (_cli.HasError(build)) { return "Error build: " + build; }
 
             var sign = transactions.SignTransaction(txParams);
-            if (_cli.HasError(minFee)) { return "Error sign: " + sign; }
+            if (_cli.HasError(sign)) { return "Error sign: " + sign; }
 
             var submit = transactions.SubmitTransaction(txParams);
-            if (_cli.HasError(minFee)) { return "Error submit: " + submit; }
+            if (_cli.HasError(submit)) { return "Error submit: " + submit; }
 
             return submit;
         }
