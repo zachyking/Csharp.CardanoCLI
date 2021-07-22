@@ -6,7 +6,6 @@ bin/Debug/net5.0/CS.Csharp.CardanoCLI.runtimeconfig.dev.json
 bin/Debug/net5.0/CS.Csharp.CardanoCLI.runtimeconfig.json
 bin/Debug/net5.0/Newtonsoft.Json.dll
 bin/Debug/net5.0/ref/CS.Csharp.CardanoCLI.dll
-Models/TransactionParams.cs
 obj/CS.Csharp.CardanoCLI.csproj.nuget.dgspec.json
 obj/CS.Csharp.CardanoCLI.csproj.nuget.g.props
 obj/project.assets.json
@@ -30,8 +29,6 @@ obj/project.nuget.cache
 /.vs/CS.Csharp.CardanoCLI/DesignTimeBuild
 /Csharp.CardanoCLI/bin/Debug/net5.0
 /Csharp.CardanoCLI/obj
-/ExampleApp/bin/Debug/net5.0
-/ExampleApp/obj
 bin/Release/Csharp.CardanoCLI.0.1.27.nupkg
 bin/Release/net5.0/Csharp.CardanoCLI.deps.json
 bin/Release/net5.0/Csharp.CardanoCLI.dll
@@ -53,3 +50,5 @@ obj/Release/net5.0/Csharp.CardanoCLI.GeneratedMSBuildEditorConfig.editorconfig
 obj/Release/net5.0/Csharp.CardanoCLI.pdb
 obj/Release/net5.0/ref/Csharp.CardanoCLI.dll
 nuget.config
+/obj/Debug/net5.0
+/.vs/Csharp.CardanoCLI/v16

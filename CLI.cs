@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using CS.Csharp.CardanoCLI.Models;
+using Csharp.CardanoCLI.Interfaces;
 
 namespace CS.Csharp.CardanoCLI
 {
@@ -9,14 +10,16 @@ namespace CS.Csharp.CardanoCLI
         public readonly string _network; //= "--testnet-magic 1097911063"; //--mainnet
         public readonly string _cardano_cli_location; //= $"/home/azureuser/cardano-node-1.27.0/cardano-cli"; //.exe for windows
         public readonly string _working_directory; //= "/home/azureuser/cardano-node-1.27.0";
+        public ILogger _logger;
 
         private static readonly string incmd_newline = @" ";
 
-        public CLI(string network, string cardano_cli_path, string working_directory)
+        public CLI(string network, string cardano_cli_path, string working_directory, ILogger logger)
         {
             _network = network;
             _cardano_cli_location = cardano_cli_path;
             _working_directory = working_directory;
+            _logger = logger;
         }
 
         public bool HasError(string output)
@@ -49,7 +52,7 @@ namespace CS.Csharp.CardanoCLI
             }
             catch (Exception ex)
             {
-                //_logger.LogError(ex.Message, ex);
+                _logger.Err(ex.Message, ex);
                 throw;
             }
         }
@@ -59,7 +62,10 @@ namespace CS.Csharp.CardanoCLI
             string cmd = $"query tip {_network}";
             var output = RunCLICommand(cmd);
 
-            if (output.StartsWith("CS.Error")) return new Tip();
+            if (output.StartsWith("CS.Error"))
+            {
+                return new Tip();
+            }
 
             return Tip.FromJson(output);
         }
