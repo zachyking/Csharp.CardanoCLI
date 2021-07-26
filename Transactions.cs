@@ -46,6 +46,7 @@ namespace CS.Csharp.CardanoCLI
             cmd += "--witness-count 0";
             cmd += _incmd_newline;
 
+            if (!File.Exists(Path.Combine(_cli._working_directory, "protocol.json"))) _cli.SetProtocolParamaters();
             cmd += "--protocol-params-file protocol.json";
 
             var output = _cli.RunCLICommand(cmd);
@@ -81,7 +82,7 @@ namespace CS.Csharp.CardanoCLI
                     var policyId = policies.GeneratePolicyId(tokenMint.PolicyName);
                     cmd += $"\"{tokenMint.TokenAmount} {policyId}.{tokenMint.TokenName}\"";
 
-                    if (!tokenMint.Equals(mintParams.TokenParams.Last())) cmd += " + ";
+                    if (!tokenMint.Equals(mintParams.TokenParams.Last())) cmd += "+";
                 }
 
                 cmd += _incmd_newline;

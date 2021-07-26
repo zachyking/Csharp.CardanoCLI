@@ -42,7 +42,7 @@ namespace CS.Csharp.CardanoCLI
             if(_cli.HasError(prepare)) { return "Error prepare: " + prepare;  }
             
             var minFee = transactions.CalculateMinFee(txParams);
-            if (_cli.HasError(minFee)) { return "Error minFee: " + prepare; }
+            if (_cli.HasError(minFee)) { return "Error minFee: " + minFee; }
 
             var build = transactions.BuildTransaction(txParams, Int64.Parse(minFee), ttl, mintParams);
             if (_cli.HasError(build)) { return "Error build: " + build; }
