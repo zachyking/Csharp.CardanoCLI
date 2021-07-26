@@ -60,7 +60,7 @@ namespace CS.Csharp.CardanoCLI
         public bool ValidateTxParams(TransactionParams txParams, MintParams mintParams)
         {
             if (txParams.TransactionOutputs.Any()
-                && txParams.TransactionOutputs.Select(x => x.PaysFee)?.Count() == 1)
+                && txParams.TransactionOutputs.Where(x => x.PaysFee)?.Count() == 1)
             { 
                 if(txParams.TransactionInputs.Any())
                 {

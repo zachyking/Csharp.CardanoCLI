@@ -80,6 +80,8 @@ namespace CS.Csharp.CardanoCLI
                 {
                     var policyId = policies.GeneratePolicyId(tokenMint.PolicyName);
                     cmd += $"\"{tokenMint.TokenAmount} {policyId}.{tokenMint.TokenName}\"";
+
+                    if (!tokenMint.Equals(mintParams.TokenParams.Last())) cmd += " + ";
                 }
 
                 cmd += _incmd_newline;
@@ -188,7 +190,7 @@ namespace CS.Csharp.CardanoCLI
             {
                 var policyId = policies.GeneratePolicyId(tokenMint.PolicyName);
 
-                File.WriteAllText(metadatafile, Regex.Replace(File.ReadAllText(metadatafile), tokenMint.PolicyName, policyId));
+                File.WriteAllText(Path.Combine(_cli._working_directory, metadatafile), Regex.Replace(File.ReadAllText(Path.Combine(_cli._working_directory, metadatafile)), tokenMint.PolicyName, policyId));
             }
             
         }
