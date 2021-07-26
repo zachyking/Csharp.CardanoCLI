@@ -1,5 +1,4 @@
 ﻿using CS.Csharp.CardanoCLI.Models;
-using Csharp.CardanoCLI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,20 +22,19 @@ namespace CS.Csharp.CardanoCLI
         {
             if (!ValidateTxParams(txParams, mintParams)) return "Invalid transaction paramaters.";
 
-            Policies policiesUtils = new Policies(_cli);
-
-            List<Policy> policies = new List<Policy>();
-
-            foreach(var pParams in pParamsList)
+            if(pParamsList.Any())
             {
-                var policy = policiesUtils.Create(pParams);
+                Policies policiesUtils = new Policies(_cli);
 
-                if (string.IsNullOrEmpty(policy.PolicyKeyHash)) { return "Error policy: " + policy; }
+                foreach (var pParams in pParamsList)
+                {
+                    var policy = policiesUtils.Create(pParams);
 
-                policies.Add(policy);
+                    if (string.IsNullOrEmpty(policy.PolicyKeyHash)) { return "Error policy: " + policy; }
+                }
             }
             
-            Transactions transactions = new Transactions(txParams.SigningKeyFile, _cli);
+            Transactions transactions = new Transactions(_cli);
 
             var ttl = _cli.QueryTip().Slot + 120;
 
@@ -74,7 +72,6 @@ namespace CS.Csharp.CardanoCLI
                     _cli._logger.Warn("No transaction input");
                     return false;
                 }
-               
             }
             else
             {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Csharp.CardanoCLI.Interfaces
+namespace CS.Csharp.CardanoCLI
 {
     public interface ILogger
     {

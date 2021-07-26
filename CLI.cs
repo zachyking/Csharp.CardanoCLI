@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using CS.Csharp.CardanoCLI.Models;
-using Csharp.CardanoCLI.Interfaces;
 
 namespace CS.Csharp.CardanoCLI
 {

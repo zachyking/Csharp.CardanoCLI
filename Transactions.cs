@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-
+using System.IO;
 
 namespace CS.Csharp.CardanoCLI
 {
@@ -70,7 +70,7 @@ namespace CS.Csharp.CardanoCLI
                 cmd = TxOutput(minFee, mintParams, cmd, txout);
             }
 
-            if (mintParams != null)
+            if (mintParams?.TokenParams?.Count > 0)
             {
                 var policies = new Policies(_cli);
 
@@ -93,6 +93,8 @@ namespace CS.Csharp.CardanoCLI
 
             if (!String.IsNullOrEmpty(txParams.MetadataFileName))
             {
+                if (mintParams?.TokenParams?.Count > 0) UpdatePolicyIdInMetadata(mintParams, txParams.MetadataFileName);
+
                 cmd += $"--metadata-json-file {txParams.MetadataFileName}";
                 cmd += _incmd_newline;
             }
@@ -177,6 +179,18 @@ namespace CS.Csharp.CardanoCLI
         {
             var cmd = $"transaction txid --tx-file {txParams.TxFileName}.signed";
             return _cli.RunCLICommand(cmd);
+        }
+
+        public void UpdatePolicyIdInMetadata(MintParams mintParams, string metadatafile)
+        {
+            var policies = new Policies(_cli);
+            foreach (var tokenMint in mintParams.TokenParams)
+            {
+                var policyId = policies.GeneratePolicyId(tokenMint.PolicyName);
+
+                File.WriteAllText(metadatafile, Regex.Replace(File.ReadAllText(metadatafile), tokenMint.PolicyName, policyId));
+            }
+            
         }
     }
 }
