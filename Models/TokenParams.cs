@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace CS.Csharp.CardanoCLI.Models
 {
-    public class MintParams
+    public class TokenParams
     {
-        public List<TokenParams> TokenParams { get; set; }
+        public string PolicyName { get; set; }
+        public string TokenName { get; set; }
+        public int TokenAmount { get; set; }
     }
 }

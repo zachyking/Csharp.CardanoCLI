@@ -12,12 +12,10 @@ namespace CS.Csharp.CardanoCLI
     public class Transactions
     {
         private readonly string _incmd_newline = " ";
-        private readonly string _signing_key;
         private readonly CLI _cli;
 
-        public Transactions(string signning_key, CLI cli)
+        public Transactions(CLI cli)
         {
-            _signing_key = signning_key;
             _cli = cli;
         }
 
@@ -25,16 +23,17 @@ namespace CS.Csharp.CardanoCLI
         {
             return BuildTransaction(txParams, 170000, ttl, mintParams);
         }
-       
+
         public string CalculateMinFee(TransactionParams txParams)
         {
             var cmd = @"transaction calculate-min-fee";
             cmd += _incmd_newline;
 
-            cmd += "--tx-in-count 1";
+            var inputsCount = txParams.TransactionInputs.Count;
+            cmd += $"--tx-in-count {inputsCount}";
             cmd += _incmd_newline;
 
-            var outCount = txParams.SendAllTxInAda ? 1 : 2;
+            var outCount = txParams.TransactionOutputs.Count;
             cmd += $"--tx-out-count {outCount}";
             cmd += _incmd_newline;
 
@@ -59,56 +58,37 @@ namespace CS.Csharp.CardanoCLI
             var cmd = @"transaction build-raw";
             cmd += _incmd_newline;
 
-            //tx in
-            cmd += $"--tx-in {txParams.TxInHash}#{txParams.TxInIx}";
-            cmd += _incmd_newline;
-
-            long lovelaceVal = txParams.SendAllTxInAda ? txParams.TxInLovelaceValue - minFee : txParams.LovelaceValue;
-
-            if (mintParams == null)
+            foreach (var txin in txParams.TransactionInputs)
             {
-                //send to - tx out 
-                cmd += $"--tx-out {txParams.SendToAddress}+{lovelaceVal}";
-
-                foreach (NativeToken nativeToken in txParams.NativeTokensToSend)
-                {
-                    cmd += $"+\"{nativeToken.Amount} {nativeToken.TokenFullName}\"";
-                }
-
+                //tx in
+                cmd += $"--tx-in {txin.TxHash}#{txin.TxIx}";
                 cmd += _incmd_newline;
-
-                //return change - fee pays sender
-                if (!txParams.SendAllTxInAda)
-                {
-                    cmd += $"--tx-out {txParams.SenderAddress}+{txParams.TxInLovelaceValue - txParams.LovelaceValue - minFee}";
-
-                    foreach (NativeToken nativeToken in txParams.NativeTokensInUtxo)
-                    {
-                        var tokenSendingAmount = txParams.NativeTokensToSend.FirstOrDefault(x => x.TokenFullName == nativeToken.TokenFullName)?.Amount;
-                        var amount = nativeToken.Amount - (tokenSendingAmount != null ? tokenSendingAmount : 0);
-                        if (amount != 0)
-                        {
-                            cmd += $"+\"{nativeToken.Amount} {nativeToken.TokenFullName}\"";
-                        }
-                    }
-                    cmd += _incmd_newline;
-                }
             }
-            else
+
+            foreach (var txout in txParams.TransactionOutputs)
+            {
+                cmd = TxOutput(minFee, mintParams, cmd, txout);
+            }
+
+            if (mintParams != null)
             {
                 var policies = new Policies(_cli);
-                var policyId = policies.GeneratePolicyId(mintParams.PolicyName);
 
-                cmd += $"--tx-out {txParams.SenderAddress}+{txParams.TxInLovelaceValue - minFee}";
+                cmd += "--mint=";
 
-                cmd += $"+\"{mintParams.TokenAmount} {policyId}.{mintParams.TokenName}\"";
+                foreach (var tokenMint in mintParams.TokenParams)
+                {
+                    var policyId = policies.GeneratePolicyId(tokenMint.PolicyName);
+                    cmd += $"\"{tokenMint.TokenAmount} {policyId}.{tokenMint.TokenName}\"";
+                }
+
                 cmd += _incmd_newline;
 
-                cmd += $"--mint=\"{mintParams.TokenAmount} {policyId}.{mintParams.TokenName}\"";
-                cmd += _incmd_newline;
-
-                cmd += $"--mint-script-file {mintParams.PolicyName}.script";
-                cmd += _incmd_newline;
+                foreach (var policy in mintParams?.TokenParams?.Select(a => a.PolicyName)?.Distinct())
+                {
+                    cmd += $"--mint-script-file {policy}.script";
+                    cmd += _incmd_newline;
+                }
             }
 
             if (!String.IsNullOrEmpty(txParams.MetadataFileName))
@@ -128,6 +108,39 @@ namespace CS.Csharp.CardanoCLI
             return _cli.RunCLICommand(cmd);
         }
 
+        private string TxOutput(long minFee, MintParams mintParams, string cmd, TxOut txout)
+        {
+            var lovelaceOut = txout.Amount.FirstOrDefault(x => x.Unit == "lovelace").Quantity;
+
+            if (txout.PaysFee) lovelaceOut -= minFee;
+
+            cmd += $"--tx-out {txout.RecipientAddress}+{lovelaceOut}";
+
+            foreach (TokenValue nativeToken in txout.Amount.Where(y => y.Unit != "lovelace"))
+            {
+                var tokenName = nativeToken.Unit;
+
+                if (mintParams != null)
+                {
+                    var toMint = mintParams.TokenParams.FirstOrDefault(z => z.TokenName == tokenName);
+
+                    if (toMint != null)
+                    {
+                        var policies = new Policies(_cli);
+                        var policyId = policies.GeneratePolicyId(toMint.PolicyName);
+
+                        tokenName = $"{ policyId }.{toMint.TokenName}";
+                    }
+                }
+
+                cmd += $"+\"{nativeToken.Quantity} {tokenName}\"";
+
+            }
+
+            cmd += _incmd_newline;
+            return cmd;
+        }
+
         public string SignTransaction(TransactionParams txParams)
         {
             var cmd = @"transaction sign";
@@ -136,7 +149,7 @@ namespace CS.Csharp.CardanoCLI
             cmd += $"--tx-body-file {txParams.TxFileName}.raw";
             cmd += _incmd_newline;
 
-            cmd += $"--signing-key-file {_signing_key}";
+            cmd += $"--signing-key-file {txParams.SigningKeyFile}";
             cmd += _incmd_newline;
 
             cmd += _cli._network;
@@ -158,7 +171,6 @@ namespace CS.Csharp.CardanoCLI
             cmd += _cli._network;
 
             return _cli.RunCLICommand(cmd);
-
         }
 
         public string GetTxIdBeforeSubmit(TransactionParams txParams)

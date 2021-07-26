@@ -7,28 +7,17 @@ namespace CS.Csharp.CardanoCLI.Models
 {
     public class TransactionParams
     {
-        public bool SendAllTxInAda { get; set; }
 
-        public string TxInHash { get; set; }
+        public bool SendAllTxsUnspentOutput { get; set; }
 
-        public long TxInLovelaceValue { get; set; }
+        public List<TxIn> TransactionInputs { get; set; }
 
-        public int TxInIx { get; set; }
-
-        public long LovelaceValue { get; set; }
-
-        public string SenderAddress { get; set; }
-
-        public string SendToAddress { get; set; }
+        public List<TxOut> TransactionOutputs { get; set; }
 
         public string TxFileName { get; set; }
 
         public string MetadataFileName { get; set; }
 
         public string SigningKeyFile { get; set; }
-
-        public List<NativeToken> NativeTokensInUtxo { get; set; }
-        public List<NativeToken> NativeTokensToSend { get; set; }
-
     }
 }

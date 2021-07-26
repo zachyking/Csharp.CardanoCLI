@@ -1,4 +1,5 @@
 ﻿using CS.Csharp.CardanoCLI.Models;
+using Csharp.CardanoCLI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,14 +19,24 @@ namespace CS.Csharp.CardanoCLI
         }
 
 
-        public string MintNativeTokens(PolicyParams pParams, MintParams mintParams, TransactionParams txParams)
+        public string MintNativeTokens(List<PolicyParams> pParamsList, MintParams mintParams, TransactionParams txParams)
         {
-            Policies policies = new Policies(_cli);
+            if (!ValidateTxParams(txParams, mintParams)) return "Invalid transaction paramaters.";
 
-            var policy = policies.Create(pParams);
-            if (string.IsNullOrEmpty(policy.PolicyKeyHash)) { return "Error policy: " + policy; }
+            Policies policiesUtils = new Policies(_cli);
 
-            Transactions transactions = new Transactions(pParams.SigningKeyFile, _cli);
+            List<Policy> policies = new List<Policy>();
+
+            foreach(var pParams in pParamsList)
+            {
+                var policy = policiesUtils.Create(pParams);
+
+                if (string.IsNullOrEmpty(policy.PolicyKeyHash)) { return "Error policy: " + policy; }
+
+                policies.Add(policy);
+            }
+            
+            Transactions transactions = new Transactions(txParams.SigningKeyFile, _cli);
 
             var ttl = _cli.QueryTip().Slot + 120;
 
@@ -45,6 +56,32 @@ namespace CS.Csharp.CardanoCLI
             if (_cli.HasError(submit)) { return "Error submit: " + submit; }
 
             return submit;
+        }
+
+        //TODO: COMPARE INPUT AND OUTPUT VALUES
+        public bool ValidateTxParams(TransactionParams txParams, MintParams mintParams)
+        {
+            if (txParams.TransactionOutputs.Any()
+                && txParams.TransactionOutputs.Select(x => x.PaysFee)?.Count() == 1)
+            { 
+                if(txParams.TransactionInputs.Any())
+                {
+                    var inputAmount = txParams.TransactionInputs.Select(x => x.Amount);
+                    return true;
+                }
+                else
+                {
+                    _cli._logger.Warn("No transaction input");
+                    return false;
+                }
+               
+            }
+            else
+            {
+                _cli._logger.Warn("One receiver needs to pay the fee.");
+            }
+            
+            return false;
         }
     }
 }
